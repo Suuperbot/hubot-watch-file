@@ -18,6 +18,10 @@ describe('general', function() {
     });
     beforeEach(function() {
         this.robot = {
+            logger: {
+                info: sinon.spy(),
+                error: sinon.spy()
+            },
             respond: sinon.spy(),
             hear: sinon.spy(),
             send: sinon.spy()
@@ -76,6 +80,10 @@ describe('watch any added files', function() {
     });
     beforeEach(function() {
         this.robot = {
+            logger: {
+                info: sinon.spy(),
+                error: sinon.spy()
+            },
             respond: sinon.spy(),
             hear: sinon.spy(),
             send: sinon.spy()
@@ -115,7 +123,10 @@ describe('watch any added files', function() {
                     var room = spyCall.args[0];
                     var message = spyCall.args[1];
                     if (/(?:Add|Delete|Change) file: /.test(message)) {
-                        messages.push(spyCall.args);
+                        messages.push({
+                            room: spyCall.args[0].room,
+                            message: spyCall.args[1]
+                        });
                     }
                 }
 
@@ -126,10 +137,10 @@ describe('watch any added files', function() {
                 clearInterval(timer);
 
                 checkResultFunc(messages.sort(function(a, b) {
-                    if (a[0] > b[0]) return 1;
-                    if (a[0] < b[0]) return -1;
-                    if (a[1] > b[1]) return 1;
-                    if (a[1] < b[1]) return -1;
+                    if (a.room > b.room) return 1;
+                    if (a.room < b.room) return -1;
+                    if (a.message > b.message) return 1;
+                    if (a.message < b.message) return -1;
                     return 0;
                 }));
             }, 100);
@@ -143,8 +154,8 @@ describe('watch any added files', function() {
             fs.outputFileSync(path.join(temp1Path, 'sample'), 'hello!');
         }, 1, function(messages) {
             assert(messages.length === 1);
-            assert(messages[0][0] === '9282');
-            assert(messages[0][1] === 'Add file: ' + path.join(temp1Path, 'sample'));
+            assert(messages[0].room === '9282');
+            assert(messages[0].message === 'Add file: ' + path.join(temp1Path, 'sample'));
             cb();
         }]);
     });
@@ -157,10 +168,10 @@ describe('watch any added files', function() {
             fs.outputFileSync(path.join(temp2Path, 'example'), 'hello?');
         }, 2, function(messages) {
             assert(messages.length === 2);
-            assert(messages[0][0] === '1317');
-            assert(messages[0][1] === 'Add file: ' + path.join(temp2Path, 'example'));
-            assert(messages[1][0] === '9282');
-            assert(messages[1][1] === 'Add file: ' + path.join(temp1Path, 'sample'));
+            assert(messages[0].room === '1317');
+            assert(messages[0].message === 'Add file: ' + path.join(temp2Path, 'example'));
+            assert(messages[1].room === '9282');
+            assert(messages[1].message === 'Add file: ' + path.join(temp1Path, 'sample'));
             cb();
         }]);
     });
@@ -174,8 +185,8 @@ describe('watch any added files', function() {
             fs.outputFileSync(dummyFile1, 'hello!!!!!!');
         }, 1, function(messages) {
             assert(messages.length === 1);
-            assert(messages[0][0] === '9282');
-            assert(messages[0][1] === 'Change file: ' + path.join(temp1Path, 'sample'));
+            assert(messages[0].room === '9282');
+            assert(messages[0].message === 'Change file: ' + path.join(temp1Path, 'sample'));
             cb();
         }]);
     });
@@ -192,10 +203,10 @@ describe('watch any added files', function() {
             fs.outputFileSync(dummyFile2, 'hohohohohoho');
         }, 2, function(messages) {
             assert(messages.length === 2);
-            assert(messages[0][0] === '1317');
-            assert(messages[0][1] === 'Change file: ' + dummyFile2);
-            assert(messages[1][0] === '9282');
-            assert(messages[1][1] === 'Change file: ' + dummyFile1);
+            assert(messages[0].room === '1317');
+            assert(messages[0].message === 'Change file: ' + dummyFile2);
+            assert(messages[1].room === '9282');
+            assert(messages[1].message === 'Change file: ' + dummyFile1);
             cb();
         }]);
     });
@@ -209,8 +220,8 @@ describe('watch any added files', function() {
             fs.removeSync(dummyFile1);
         }, 1, function(messages) {
             assert(messages.length === 1);
-            assert(messages[0][0] === '9282');
-            assert(messages[0][1] === 'Delete file: ' + path.join(temp1Path, 'sample'));
+            assert(messages[0].room === '9282');
+            assert(messages[0].message === 'Delete file: ' + path.join(temp1Path, 'sample'));
             cb();
         }]);
     });
@@ -227,10 +238,10 @@ describe('watch any added files', function() {
             fs.removeSync(dummyFile2);
         }, 2, function(messages) {
             assert(messages.length === 2);
-            assert(messages[0][0] === '1317');
-            assert(messages[0][1] === 'Delete file: ' + dummyFile2);
-            assert(messages[1][0] === '9282');
-            assert(messages[1][1] === 'Delete file: ' + dummyFile1);
+            assert(messages[0].room === '1317');
+            assert(messages[0].message === 'Delete file: ' + dummyFile2);
+            assert(messages[1].room === '9282');
+            assert(messages[1].message === 'Delete file: ' + dummyFile1);
             cb();
         }]);
     });
@@ -251,12 +262,12 @@ describe('watch any added files', function() {
             fs.outputFileSync(dummyFile2, 'hello, world.');
         }, 3, function(messages) {
             assert(messages.length === 3);
-            assert(messages[0][0] === '1317');
-            assert(messages[0][1] === 'Change file: ' + dummyFile2);
-            assert(messages[1][0] === '9282');
-            assert(messages[1][1] === 'Add file: ' + dummyFile3);
-            assert(messages[2][0] === '9282');
-            assert(messages[2][1] === 'Delete file: ' + dummyFile1);
+            assert(messages[0].room === '1317');
+            assert(messages[0].message === 'Change file: ' + dummyFile2);
+            assert(messages[1].room === '9282');
+            assert(messages[1].message === 'Add file: ' + dummyFile3);
+            assert(messages[2].room === '9282');
+            assert(messages[2].message === 'Delete file: ' + dummyFile1);
             cb();
         }]);
     });

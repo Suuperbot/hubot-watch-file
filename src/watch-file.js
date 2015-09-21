@@ -1,9 +1,7 @@
-/*
-
-HUBOT_WATCH_FILE_1 = 'roomid=path'
-
-*/
-
+// Description:
+//   A hubot script that watch for file changes.
+// Commands:
+//   hubot 監視しているファイルを教えて  - Return watching directiries
 var chokidar = require('chokidar')
 
 module.exports = function(robot) {
@@ -24,6 +22,8 @@ module.exports = function(robot) {
         return;
     }
 
+    robot.logger.info("start watch-file: " + watchTargets.map(function(watchTarget) { return '[#' + watchTarget.room + '] ' + watchTarget.target }).join(', '));
+
     var watcherOption = {
         ignoreInitial: true,    // 初回読み込み時にはaddイベントを発火させない
         ignored: /^\./,         // ドットファイルは除外
@@ -36,22 +36,23 @@ module.exports = function(robot) {
         watcher
             .on('ready', function() {
                 //console.log('now on ready: ' + watchTarget.target)
-                robot.send(watchTarget.room, "Watching: " + watchTarget.target)
+                robot.logger.info('ready now: room = ' + watchTarget.room + ', target = ' + watchTarget.target);
+                robot.send({room: watchTarget.room}, "Ready Watching: " + watchTarget.target)
             })
         	.on('add', function(path) {
                 //console.log('file added:' + path)
-                robot.send(watchTarget.room, 'Add file: ' + path)
+                robot.send({room: watchTarget.room}, 'Add file: ' + path)
             })
         	//.on('addDir', function(path) { console.log("追加ディレクトリ-> " + path); })
         	.on('unlink', function(path) {
-                robot.send(watchTarget.room, 'Delete file: ' + path)
+                robot.send({room: watchTarget.room}, 'Delete file: ' + path)
             })
         	//.on('unlinkDir', function(path) { console.log("削除されました-> " + path); })
         	.on('change', function(path) {
-                robot.send(watchTarget.room, 'Change file: ' + path)
+                robot.send({room: watchTarget.room}, 'Change file: ' + path)
             })
         	.on('error', function(error) {
-                robot.send(watchTarget.room, 'Error: ' + error)
+                robot.send({room: watchTarget.room}, 'Error: ' + error)
             })
         return watcher;
     });
