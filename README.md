@@ -1,6 +1,8 @@
  hubot-watch-file
 ==================
 
+A hubot script that watch for file changes.
+
 ## Install
 
 ```
