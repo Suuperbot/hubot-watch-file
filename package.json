@@ -1,0 +1,44 @@
+{
+  "name": "hubot-watch-file",
+  "description": "A hubot script that watch the files",
+  "version": "0.0.1",
+  "author": "kuronekomichael <michael@cat.email.ne.jp>",
+  "license": "MIT",
+  "keywords": [
+    "hubot",
+    "hubot-scripts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kuronekomichael/hubot-watch-file.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kuronekomichael/hubot-watch-file/issues"
+  },
+  "dependencies": {
+    "chokidar": "^1.0.6",
+    "fs-extra": "^0.24.0"
+  },
+  "devDependencies": {
+    "boolify-string": "^0.1.0",
+    "coveralls": "^2.10.1",
+    "del": "^1.1.1",
+    "event-stream": "^3.1.5",
+    "gulp": "^3.8.2",
+    "gulp-espower": "^0.10.0",
+    "gulp-if": "^1.2.1",
+    "gulp-istanbul": "^0.6.0",
+    "gulp-load-plugins": "^0.8.0",
+    "gulp-mocha": "^2.0.0",
+    "gulp-plumber": "^0.6.3",
+    "gulp-sourcemaps": "^1.3.0",
+    "gulp-util": "^3.0.3",
+    "power-assert": "^0.10.1",
+    "sinon": "^1.10.2"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "coveralls": "gulp test && cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  }
+}

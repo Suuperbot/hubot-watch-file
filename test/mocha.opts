@@ -1,0 +1,3 @@
+--reporter spec
+--require ./test/_helper.js
+--timeout 10000
